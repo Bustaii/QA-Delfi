@@ -17,16 +17,13 @@ public class TestDelfiPosts {
     private String WEB_URL = "http://delfi.lv"; //define desktop website url
     private String MOB_URL = "http://m.delfi.lv"; //define mobile website url
 
-    private String desktopTitle = "";
-    private String mobileTitle = "";
-    private String desktopComment = "";
-    private String mobileComment = "";
-
+    private List<String> desktopTitle = new ArrayList<String>(); //define desktop array
+    private List<String> mobileTitle = new ArrayList<String>(); //define mobile array
 
     @Test
     public void DelfiPostMethod() {
         //path to firefox driver
-        System.setProperty("webdriver.gecko.driver", "C:/Users/AW13/IdeaProjects/QA2_AutomatizationFromGit/src/drivers/geckodriver.exe");
+        System.setProperty("webdriver.gecko.driver", "G:\\Project_QA\\_Driver\\geckodriver.exe");
 
         WebDriver fireFox = new FirefoxDriver(); //define driver as varieble "fireFox"
         fireFox.manage().window().maximize(); //open browser and maximize the window
@@ -40,9 +37,9 @@ public class TestDelfiPosts {
         List<WebElement> postTitleList = fireFox.findElements(By.xpath("//h3/a[@class='top2012-title']"));
         List<WebElement> postCommentsList = fireFox.findElements(By.xpath("//h3/a[@class='comment-count']"));
         for (int i = 0; i < 5; i++) {
-            desktopTitle = (postTitleList.get(i).getText());
-            desktopComment = (postCommentsList.get(i).getText());
+            desktopTitle.add (postTitleList.get(i).getText() + postCommentsList.get(i).getText()); //get titles and comment from first five elements from the list and store it into array
             //System.out.println(postTitleList.get(i).getText() + postCommentsList.get(i).getText());
+            //System.out.println(desktopTitle); //show array content
         }
 
 
@@ -60,19 +57,19 @@ public class TestDelfiPosts {
         List<WebElement> postTitleListMobile = fireFox.findElements(By.xpath("//a[@class='md-scrollpos']"));
         List<WebElement> postCommentsListMobile = fireFox.findElements(By.xpath("//a[@class='commentCount']"));
         for (int i = 0; i < 5; i++) {
-            mobileTitle = (postTitleListMobile.get(i).getText()); //get titles from first five elements from the list and store it to defined varieble
-            mobileComment = (postCommentsListMobile.get(i).getText()); //get comments from first five elements from the list and store it to defined varieble
+            mobileTitle.add (postTitleListMobile.get(i).getText() + postCommentsListMobile.get(i).getText()); //get titles and comment from first five elements from the list and store it into array
             //System.out.println(postTitleListMobile.get(i).getText() + postCommentsListMobile.get(i).getText());
+            //System.out.println(mobileTitle); //show array content
         }
 
         Assert.assertEquals(desktopTitle, mobileTitle);
-        //System.out.println(desktopTitle + " = " + mobileTitle);
+        System.out.println("DESKTOP ARRAY - " + desktopTitle); //show array content desktop
+        System.out.println("\n"); // add linebreak
+        System.out.println("MOBILE ARRAY - " + mobileTitle); //show array content mobile
 
-        Assert.assertEquals(desktopComment, mobileComment);
-        //System.out.println(desktopComment + " = " + mobileComment);
 
 
-        browserTabs.clear(); //clear tabs array
+        //browserTabs.clear(); //clear tabs array
         fireFox.quit(); //close browser
     }
 }
