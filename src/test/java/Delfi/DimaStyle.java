@@ -7,31 +7,43 @@ import org.openqa.selenium.firefox.*; //selected all - required for firefox driv
 import java.util.*; //selected all - required for arrays
 
 public class DimaStyle {
-    private String WEB_URL = "http://delfi.lv"; //define desktop website url
+    private String WEB_URL = "http://www.delfi.lv/"; //define desktop website url
     private String MOB_URL = "http://m.delfi.lv"; //define mobile website url
 
     private static final By ARTICLE = By.xpath("//h3[@class='top2012-title']");
     private static final By ARTICLE_TITLE = By.xpath("//a[@class='top2012-title']");
     private static final By ARTICLE_COMMENT_COUNT = By.xpath("//a[@class='comment-count']");
 
+    private static final By ARTICLE_MOBILE = By.xpath("//div[@class='md-mosaic-title']");
+    private static final By ARTICLE_TITLE_MOBILE = By.xpath("//a[@class='md-scrollpos']");
+    private static final By ARTICLE_COMMENT_COUNT_MOBILE = By.xpath("//a[@class='commentCount']");
 
     @Test
     public void testMethod() {
-        System.setProperty("webdriver.gecko.driver", "C:\\_driver/geckodriver.exe");
+        System.setProperty("webdriver.gecko.driver", "G:\\_driver/geckodriver.exe");
 
         WebDriver driver = new FirefoxDriver();
 
 
-        driver.get("http://www.delfi.lv/");
+        driver.get(WEB_URL);
+        String newTab = Keys.chord(Keys.CONTROL, Keys.RETURN);
+        driver.findElement(By.xpath("//a[@class='headerLogo']")).sendKeys(newTab);
 
-
+        //create array of tabs - defined as "browserTabs"
+        List<String> browserTabs = new ArrayList<String> (driver.getWindowHandles());
+        while (browserTabs.size() != 2) { //add check if there are less then 2 tabs active will wait until
+            browserTabs.clear();
+            browserTabs.addAll(driver.getWindowHandles());
+        }
+        driver.switchTo().window(browserTabs.get(1)); // switch to new tab [1] second tab
+        driver.get(MOB_URL); //open this url in new tab\
+        driver.switchTo().window(browserTabs.get(0)); // switch back to new tab [0] first tab
 
         List<String> titlesArray = new ArrayList<String>();
         List<Integer> countArray = new ArrayList<Integer>();
-//
-//        List<String> mobileTitles = new ArrayList<String>();
-//        List<Integer> mobileCounts = new ArrayList<Integer>();
-//        List<Long> idsToCheck = new ArrayList<Long>();
+
+        List<String> titlesArrayMobile = new ArrayList<String>();
+        List<Integer> countArrayMobile = new ArrayList<Integer>();
 
         List<WebElement> articleList = driver.findElements(ARTICLE);
         for (int i = 0; i < 5; i++) {
@@ -40,17 +52,48 @@ public class DimaStyle {
             titlesArray.add(title);
 
             if (element.findElements(ARTICLE_COMMENT_COUNT).size() != 0) {
-                String countToParse = element.findElement(ARTICLE_COMMENT_COUNT).getText(); //(106)
+                String countToParse = element.findElements(ARTICLE_COMMENT_COUNT).get(i).getText(); //(106)
                 countToParse = countToParse.substring(countToParse.indexOf('(') + 1, countToParse.indexOf(')')); //106
                 countArray.add(Integer.valueOf(countToParse));
             } else {
                 countArray.add(0);
             }
         }
-//        System.out.println(articleList); // add linebreak
-        System.out.println(titlesArray); // add linebreak
-        System.out.println("\n"); // add linebreak
-        System.out.println(countArray); // add linebreak
+
+        driver.switchTo().window(browserTabs.get(1)); // switch to new tab [1] second tab
+
+        List<WebElement> articleListMobile = driver.findElements(ARTICLE_MOBILE);
+        for (int i = 0; i < 5; i++) {
+            WebElement elementMobile = articleListMobile.get(i);
+            String title = elementMobile.findElements(ARTICLE_TITLE_MOBILE).get(i).getText();
+            titlesArrayMobile.add(title);
+
+            if (elementMobile.findElements(ARTICLE_COMMENT_COUNT_MOBILE).size() != 0) {
+                String countToParse = elementMobile.findElements(ARTICLE_COMMENT_COUNT_MOBILE).get(i).getText(); //(106)
+                countToParse = countToParse.substring(countToParse.indexOf('(') + 1, countToParse.indexOf(')')); //106
+                countArrayMobile.add(Integer.valueOf(countToParse));
+            } else {
+                countArrayMobile.add(0);
+            }
+        }
+
+        //WEB
+        System.out.println(titlesArray); // print array
+        System.out.println(countArray); // print array
+        //MOBILE
+        System.out.println(titlesArrayMobile); // print array
+        System.out.println(countArrayMobile); // print array
+
+
+        Assert.assertEquals(titlesArray, titlesArrayMobile); // compare two arrays of titles
+        Assert.assertEquals(countArray, countArrayMobile); // compare two arrays of titles
+         // compare two arrays of titles
+//        if (Arrays.equals(countArray, countArrayMobile) ) {
+//        } else {
+//            System.out.println("GOOD"); // print array
+//        }
+
+
 //idsToCheck.add(Long.valueOf(element.findElement(ARTICLE_TITLE).getAttribute("href").substring()));
 
         //Kak perejti na tretju statju iz lista
