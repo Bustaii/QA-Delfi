@@ -117,8 +117,8 @@ public class DimaStyle {
 
                     String findCount = driver.findElement(ARTICLE_COMMENT_COUNT_MOBILE_PAGE).getText();
                     findCount = findCount.substring(findCount.indexOf('(') + 1, findCount.indexOf(')')); //106
-
-                    //Assert.assertEquals(getArrayCount, findCount); // compare two arrays of comment count
+            Integer findCountInt = Integer.valueOf(findCount);
+            Assert.assertEquals(getArrayCount, findCountInt); // compare two arrays of comment count
             System.out.println(findCount); // print array
         }
 
@@ -133,19 +133,10 @@ public class DimaStyle {
 
                     String findCount = driver.findElement(ARTICLE_COMMENT_COUNT_PAGE).getText();
                     findCount = findCount.substring(findCount.indexOf('(') + 1, findCount.indexOf(')')); //106
-
-                    //Assert.assertEquals(getArrayCount, findCount); // compare two arrays of comment count
+            Integer findCountInt = Integer.valueOf(findCount);
+            Assert.assertEquals(getArrayCount, findCountInt); // compare two arrays of comment count
             System.out.println(findCount); // print array
         }
-
-
-        //Kak perejti na tretju statju iz lista
-//        driver.get("http://delfi.lv/blablabla?id=" + idsToCheck.get(2));
-//
-//        for (int i = 0; i < titles.size(); i++) {
-//            Assert.assertEquals("Title is not equals for an article: " + titles.get(i), titles.get(i), mobileTitles.get(i));
-//            Assert.assertEquals();
-//        }
         driver.quit(); //close browser
     }
 }
