@@ -5,7 +5,6 @@ import org.testng.Assert;
 import org.testng.annotations.*; //selected all - TestNG
 import org.openqa.selenium.firefox.*; //selected all - required for firefox driver
 import java.util.*; //selected all - required for arrays
-
 import static java.lang.Integer.valueOf;
 
 public class DimaStyle {
@@ -13,6 +12,8 @@ public class DimaStyle {
     private String MOB_URL = "http://m.delfi.lv"; //define mobile website url
 
     //WEB
+    private static final By LOGO = By.xpath("//a[@class='headerLogo']");
+
     private static final By ARTICLE = By.xpath("//h3[@class='top2012-title']");
     private static final By ARTICLE_TITLE = By.xpath("//a[@class='top2012-title']");
     private static final By ARTICLE_COMMENT_COUNT = By.xpath("//a[@class='comment-count']");
@@ -34,7 +35,7 @@ public class DimaStyle {
 
         driver.get(WEB_URL);
         String newTab = Keys.chord(Keys.CONTROL, Keys.RETURN);
-        driver.findElement(By.xpath("//a[@class='headerLogo']")).sendKeys(newTab);
+        driver.findElement(LOGO).sendKeys(newTab);
 
         //create array of tabs - defined as "browserTabs"
         List<String> browserTabs = new ArrayList<String> (driver.getWindowHandles());
@@ -103,8 +104,8 @@ public class DimaStyle {
         System.out.println(countArrayMobile); // print array
         System.out.println(urlArrayMobile); // print array
 
-        //Assert.assertEquals(titlesArray, titlesArrayMobile); // compare two arrays of titles
-        //Assert.assertEquals(countArray, countArrayMobile); // compare two arrays of comment count
+        Assert.assertEquals(titlesArray, titlesArrayMobile); // compare two arrays of titles
+        Assert.assertEquals(countArray, countArrayMobile); // compare two arrays of comment count
 
         //MOBILE
         for (int i = 0; i < 5; i++) {
