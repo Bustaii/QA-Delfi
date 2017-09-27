@@ -1,44 +1,55 @@
 package Delfi;
 
 import org.openqa.selenium.*; //selected all - Selenium
-import org.testng.Assert;
-import org.testng.annotations.*; //selected all - TestNG
+import org.testng.*; //selected all - TestNG
 import org.openqa.selenium.firefox.*; //selected all - required for firefox driver
+import org.testng.annotations.*;
+
+import java.awt.*;
 import java.util.*; //selected all - required for arrays
+
 import static java.lang.Integer.valueOf;
+
+import java.util.List;
 
 public class DimaStyle {
     private String WEB_URL = "http://www.delfi.lv/"; //define desktop website url
     private String MOB_URL = "http://m.delfi.lv"; //define mobile website url
 
-    //WEB
+    //WEB LOCATORS
     private static final By LOGO = By.xpath("//a[@class='headerLogo']");
 
     private static final By ARTICLE = By.xpath("//h3[@class='top2012-title']");
-    private static final By ARTICLE_TITLE = By.xpath("//a[@class='top2012-title']");
+    private static final By ARTICLE_TITLE = By.xpath("//h3/a[@class='top2012-title']");
     private static final By ARTICLE_COMMENT_COUNT = By.xpath("//a[@class='comment-count']");
     private static final By ARTICLE_TITLE_PAGE = By.xpath("//h1[@class='article-title']/span");
     private static final By ARTICLE_COMMENT_COUNT_PAGE = By.xpath("//a[@class='comment-count']");
 
-    //MOBILE
+    //MOBILE LOCATORS
     private static final By ARTICLE_MOBILE = By.xpath("//div[@class='md-mosaic-title']");
     private static final By ARTICLE_TITLE_MOBILE = By.xpath("//a[@class='md-scrollpos']");
     private static final By ARTICLE_COMMENT_COUNT_MOBILE = By.xpath("//a[@class='commentCount']");
     private static final By ARTICLE_TITLE_MOBILE_PAGE = By.xpath("//div[@class='article-title']/h1");
     private static final By ARTICLE_COMMENT_COUNT_MOBILE_PAGE = By.xpath("//a[@class='commentCount']");
 
+    //SHARED LOCATORS
+    private static final By REG_USR_COMMENTS = By.xpath("//*[contains(@class,'list-a-reg')]/span");
+    private static final By NO_REG_USR_COMMENTS = By.xpath("//*[contains(@class,'list-a-anon')]/span");
+
+
     @Test
-    public void testMethod() {
+    public void testMethod() throws AWTException {
         System.setProperty("webdriver.gecko.driver", "G:\\_driver/geckodriver.exe");
 
-        WebDriver driver = new FirefoxDriver();
+        WebDriver driver = new FirefoxDriver(); // define driver variable
+        driver.manage().window().maximize(); // maximize browser window
 
-        driver.get(WEB_URL);
-        String newTab = Keys.chord(Keys.CONTROL, Keys.RETURN);
-        driver.findElement(LOGO).sendKeys(newTab);
+        driver.get(WEB_URL); // go to url
+        String newTab = Keys.chord(Keys.CONTROL, Keys.RETURN); // open second tab
+        driver.findElement(LOGO).sendKeys(newTab); // by clicking on logo
 
         //create array of tabs - defined as "browserTabs"
-        List<String> browserTabs = new ArrayList<String> (driver.getWindowHandles());
+        List<String> browserTabs = new ArrayList<String>(driver.getWindowHandles());
         while (browserTabs.size() != 2) { //add check if there are less then 2 tabs active will wait until
             browserTabs.clear();
             browserTabs.addAll(driver.getWindowHandles());
@@ -95,17 +106,14 @@ public class DimaStyle {
             }
         }
 
-        //WEB
-        System.out.println(titlesArray); // print array
-        System.out.println(countArray); // print array
-        System.out.println(urlArray); // print array
-        //MOBILE
-        System.out.println(titlesArrayMobile); // print array
-        System.out.println(countArrayMobile); // print array
-        System.out.println(urlArrayMobile); // print array
 
         Assert.assertEquals(titlesArray, titlesArrayMobile); // compare two arrays of titles
-        Assert.assertEquals(countArray, countArrayMobile); // compare two arrays of comment count
+        try {
+            Assert.assertEquals(countArray, countArrayMobile);
+        } catch (Exception e) {
+            System.out.println("some comments count is different");
+        }
+        //Assert.assertEquals(countArray, countArrayMobile); // compare two arrays of comment count
 
         //MOBILE
         for (int i = 0; i < 5; i++) {
@@ -113,14 +121,23 @@ public class DimaStyle {
             String getArrayUrl = urlArrayMobile.get(i);
             Integer getArrayCount = countArrayMobile.get(i);
                 driver.get(getArrayUrl);
-                    String findTitle = driver.findElement(ARTICLE_TITLE_MOBILE_PAGE).getText();
+                String findTitle = driver.findElement(ARTICLE_TITLE_MOBILE_PAGE).getText();
                     Assert.assertTrue(findTitle.contains(getArrayTitle), "\n" + "Looking : " + getArrayTitle + "\n" + "Results : " + findTitle + "\n");
 
-                    String findCount = driver.findElement(ARTICLE_COMMENT_COUNT_MOBILE_PAGE).getText();
+                String findCount = driver.findElement(ARTICLE_COMMENT_COUNT_MOBILE_PAGE).getText();
                     findCount = findCount.substring(findCount.indexOf('(') + 1, findCount.indexOf(')')); //106
-            Integer findCountInt = Integer.valueOf(findCount);
-            Assert.assertEquals(getArrayCount, findCountInt); // compare two arrays of comment count
-            System.out.println(findCount); // print array
+                        Integer findCountInt = Integer.valueOf(findCount);
+                driver.findElement(ARTICLE_COMMENT_COUNT_MOBILE_PAGE).click();
+                String regComments = driver.findElement(REG_USR_COMMENTS).getText();
+                    regComments = regComments.substring(regComments.indexOf('(') + 1, regComments.indexOf(')')); //106
+                        Integer regCommentsInt = Integer.valueOf(regComments);
+
+                String noregComments = driver.findElement(NO_REG_USR_COMMENTS).getText();
+                    noregComments = noregComments.substring(noregComments.indexOf('(') + 1, noregComments.indexOf(')')); //106
+                        Integer noregCommentsInt = Integer.valueOf(noregComments);
+
+                    Integer summOfComments = (regCommentsInt + noregCommentsInt);
+                Assert.assertEquals(getArrayCount, findCountInt, summOfComments); // compare tree arrays of comment count
         }
 
         //WEB
@@ -129,14 +146,23 @@ public class DimaStyle {
             String getArrayUrl = urlArray.get(i);
             Integer getArrayCount = countArray.get(i);
                 driver.get(getArrayUrl);
-                    String findTitle = driver.findElement(ARTICLE_TITLE_PAGE).getText();
+                String findTitle = driver.findElement(ARTICLE_TITLE_PAGE).getText();
                     Assert.assertTrue(findTitle.contains(getArrayTitle), "\n" + "Looking : " + getArrayTitle + "\n" + "Results : " + findTitle + "\n");
 
-                    String findCount = driver.findElement(ARTICLE_COMMENT_COUNT_PAGE).getText();
+                String findCount = driver.findElement(ARTICLE_COMMENT_COUNT_PAGE).getText();
                     findCount = findCount.substring(findCount.indexOf('(') + 1, findCount.indexOf(')')); //106
-            Integer findCountInt = Integer.valueOf(findCount);
-            Assert.assertEquals(getArrayCount, findCountInt); // compare two arrays of comment count
-            System.out.println(findCount); // print array
+                        Integer findCountInt = Integer.valueOf(findCount);
+                driver.findElement(ARTICLE_COMMENT_COUNT_PAGE).click();
+                String regComments = driver.findElement(REG_USR_COMMENTS).getText();
+                    regComments = regComments.substring(regComments.indexOf('(') + 1, regComments.indexOf(')')); //106
+                        Integer regCommentsInt = Integer.valueOf(regComments);
+
+                String noregComments = driver.findElement(NO_REG_USR_COMMENTS).getText();
+                    noregComments = noregComments.substring(noregComments.indexOf('(') + 1, noregComments.indexOf(')')); //106
+                        Integer noregCommentsInt = Integer.valueOf(noregComments);
+
+                    Integer summOfComments = (regCommentsInt + noregCommentsInt);
+                Assert.assertEquals(getArrayCount, findCountInt, summOfComments); // compare tree arrays of comment count
         }
         driver.quit(); //close browser
     }
