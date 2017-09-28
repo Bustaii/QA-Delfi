@@ -4,13 +4,11 @@ import org.openqa.selenium.*; //selected all - Selenium
 import org.testng.*; //selected all - TestNG
 import org.openqa.selenium.firefox.*; //selected all - required for firefox driver
 import org.testng.annotations.*;
-
 import java.awt.*;
 import java.util.*; //selected all - required for arrays
-
 import static java.lang.Integer.valueOf;
-
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class DimaStyle {
     private String WEB_URL = "http://www.delfi.lv/"; //define desktop website url
@@ -68,6 +66,10 @@ public class DimaStyle {
         List<Integer> countArrayMobile = new ArrayList<Integer>();
         List<String> urlArrayMobile = new ArrayList<String>();
 
+        List<Integer> regCommentsInt = new ArrayList<Integer>();
+        List<Integer> noRegCommentsInt = new ArrayList<Integer>();
+
+
         List<WebElement> articleList = driver.findElements(ARTICLE);
         for (int i = 0; i < 5; i++) {
             WebElement element = articleList.get(i);
@@ -105,64 +107,96 @@ public class DimaStyle {
                 countArrayMobile.add(0);
             }
         }
-
-
         Assert.assertEquals(titlesArray, titlesArrayMobile); // compare two arrays of titles
-        try {
-            Assert.assertEquals(countArray, countArrayMobile);
-        } catch (Exception e) {
-            System.out.println("some comments count is different");
-        }
-        //Assert.assertEquals(countArray, countArrayMobile); // compare two arrays of comment count
+        Assert.assertEquals(countArray, countArrayMobile); // compare two arrays of comment count
 
         //MOBILE
         for (int i = 0; i < 5; i++) {
             String getArrayTitle = titlesArrayMobile.get(i);
             String getArrayUrl = urlArrayMobile.get(i);
             Integer getArrayCount = countArrayMobile.get(i);
-                driver.get(getArrayUrl);
-                String findTitle = driver.findElement(ARTICLE_TITLE_MOBILE_PAGE).getText();
-                    Assert.assertTrue(findTitle.contains(getArrayTitle), "\n" + "Looking : " + getArrayTitle + "\n" + "Results : " + findTitle + "\n");
 
-                String findCount = driver.findElement(ARTICLE_COMMENT_COUNT_MOBILE_PAGE).getText();
-                    findCount = findCount.substring(findCount.indexOf('(') + 1, findCount.indexOf(')')); //106
-                        Integer findCountInt = Integer.valueOf(findCount);
-                driver.findElement(ARTICLE_COMMENT_COUNT_MOBILE_PAGE).click();
-                String regComments = driver.findElement(REG_USR_COMMENTS).getText();
-                    regComments = regComments.substring(regComments.indexOf('(') + 1, regComments.indexOf(')')); //106
-                        Integer regCommentsInt = Integer.valueOf(regComments);
+                driver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS); //bypass long loading pages
+                try {
+                    driver.get(getArrayUrl);
+                } catch (TimeoutException e) {
+                    String findTitle = driver.findElement(ARTICLE_TITLE_MOBILE_PAGE).getText();
+                        Assert.assertTrue(findTitle.contains(getArrayTitle), "\n" + "Looking : " + getArrayTitle + "\n" + "Results : " + findTitle + "\n");
 
-                String noregComments = driver.findElement(NO_REG_USR_COMMENTS).getText();
-                    noregComments = noregComments.substring(noregComments.indexOf('(') + 1, noregComments.indexOf(')')); //106
-                        Integer noregCommentsInt = Integer.valueOf(noregComments);
+                    String findCount = driver.findElement(ARTICLE_COMMENT_COUNT_MOBILE_PAGE).getText();
+                        findCount = findCount.substring(findCount.indexOf('(') + 1, findCount.indexOf(')')); //106
+                            Integer findCountInt = Integer.valueOf(findCount);
+                    driver.findElement(ARTICLE_COMMENT_COUNT_MOBILE_PAGE).click();
 
-                    Integer summOfComments = (regCommentsInt + noregCommentsInt);
-                Assert.assertEquals(getArrayCount, findCountInt, summOfComments); // compare tree arrays of comment count
-        }
+                    //check if authorised comments are on the page
+                    if (driver.findElements(REG_USR_COMMENTS).size() != 0) {
+                        String countToParseMobile = driver.findElement(REG_USR_COMMENTS).getText(); //(106)
+                        countToParseMobile = countToParseMobile.substring(countToParseMobile.indexOf('(') + 1, countToParseMobile.indexOf(')')); //106
+                        regCommentsInt.add(valueOf(countToParseMobile));
+                    } else {
+                        regCommentsInt.add(0);
+                    }
+
+                    //check if not authorised comments are on the page
+                    if (driver.findElements(NO_REG_USR_COMMENTS).size() != 0) {
+                        String countToParseMobile = driver.findElement(NO_REG_USR_COMMENTS).getText(); //(106)
+                        countToParseMobile = countToParseMobile.substring(countToParseMobile.indexOf('(') + 1, countToParseMobile.indexOf(')')); //106
+                        noRegCommentsInt.add(valueOf(countToParseMobile));
+                    } else {
+                        noRegCommentsInt.add(0);
+                    }
+                    Integer noRegArray = regCommentsInt.get(i);
+                    Integer regArray = noRegCommentsInt.get(i);
+
+                    Integer summOfComments = (noRegArray + regArray);
+
+                    Assert.assertEquals(Integer.valueOf(getArrayCount), Integer.valueOf(findCountInt), Integer.valueOf(summOfComments)); // compare tree arrays of comment count
+
+                } //try catch close
+        } //for close
 
         //WEB
         for (int i = 0; i < 5; i++) {
             String getArrayTitle = titlesArray.get(i);
             String getArrayUrl = urlArray.get(i);
             Integer getArrayCount = countArray.get(i);
-                driver.get(getArrayUrl);
-                String findTitle = driver.findElement(ARTICLE_TITLE_PAGE).getText();
+
+                driver.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS); //bypass long loading pages
+                try {
+                    driver.get(getArrayUrl);
+                } catch (TimeoutException e) {
+                    String findTitle = driver.findElement(ARTICLE_TITLE_PAGE).getText();
                     Assert.assertTrue(findTitle.contains(getArrayTitle), "\n" + "Looking : " + getArrayTitle + "\n" + "Results : " + findTitle + "\n");
 
-                String findCount = driver.findElement(ARTICLE_COMMENT_COUNT_PAGE).getText();
+                    String findCount = driver.findElement(ARTICLE_COMMENT_COUNT_PAGE).getText();
                     findCount = findCount.substring(findCount.indexOf('(') + 1, findCount.indexOf(')')); //106
-                        Integer findCountInt = Integer.valueOf(findCount);
-                driver.findElement(ARTICLE_COMMENT_COUNT_PAGE).click();
-                String regComments = driver.findElement(REG_USR_COMMENTS).getText();
-                    regComments = regComments.substring(regComments.indexOf('(') + 1, regComments.indexOf(')')); //106
-                        Integer regCommentsInt = Integer.valueOf(regComments);
+                    Integer findCountInt = Integer.valueOf(findCount);
+                    driver.findElement(ARTICLE_COMMENT_COUNT_PAGE).click();
 
-                String noregComments = driver.findElement(NO_REG_USR_COMMENTS).getText();
-                    noregComments = noregComments.substring(noregComments.indexOf('(') + 1, noregComments.indexOf(')')); //106
-                        Integer noregCommentsInt = Integer.valueOf(noregComments);
+                    //check if authorised comments are on the page
+                    if (driver.findElements(REG_USR_COMMENTS).size() != 0) {
+                        String countToParseMobile = driver.findElement(REG_USR_COMMENTS).getText(); //(106)
+                        countToParseMobile = countToParseMobile.substring(countToParseMobile.indexOf('(') + 1, countToParseMobile.indexOf(')')); //106
+                        regCommentsInt.add(valueOf(countToParseMobile));
+                    } else {
+                        regCommentsInt.add(0);
+                    }
 
-                    Integer summOfComments = (regCommentsInt + noregCommentsInt);
-                Assert.assertEquals(getArrayCount, findCountInt, summOfComments); // compare tree arrays of comment count
+                    //check if not authorised comments are on the page
+                    if (driver.findElements(NO_REG_USR_COMMENTS).size() != 0) {
+                        String countToParseMobile = driver.findElement(NO_REG_USR_COMMENTS).getText(); //(106)
+                        countToParseMobile = countToParseMobile.substring(countToParseMobile.indexOf('(') + 1, countToParseMobile.indexOf(')')); //106
+                        noRegCommentsInt.add(valueOf(countToParseMobile));
+                    } else {
+                        noRegCommentsInt.add(0);
+                    }
+                    Integer noRegArray = regCommentsInt.get(i);
+                    Integer regArray = noRegCommentsInt.get(i);
+
+                    Integer summOfComments = (noRegArray + regArray);
+
+                    Assert.assertEquals(Integer.valueOf(getArrayCount), Integer.valueOf(findCountInt), Integer.valueOf(summOfComments)); // compare tree arrays of comment count
+                }
         }
         driver.quit(); //close browser
     }
