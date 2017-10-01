@@ -36,11 +36,10 @@ public class DimaStyle {
     private static final By REG_USR_COMMENTS = By.xpath("//*[contains(@class,'list-a-reg')]/span");
     private static final By NO_REG_USR_COMMENTS = By.xpath("//*[contains(@class,'list-a-anon')]/span");
 
-
-    private String findThisTitle =  "Kremļa varas sistēma nepieļauj Putina aiziešanu, spriež eksperti";
+    //TEST 2
+    private String findThisTitle =  "Foto: Katalonijā sadursmēs ar policiju norit neatkarības referendums";
     private final By TITLE_IS_FOUND = By.xpath("//h3/a[contains(text(), '"+ findThisTitle +"')]");
-    private final By FOUND_PARENT = By.xpath("//h3/a[contains(text(), '"+ findThisTitle +"')]/parent::h3[@class='top2012-title']");
-
+    private final By COMMENT_IS_FOUND = By.xpath("./following-sibling::a");
 
 
     @Test
@@ -55,43 +54,88 @@ public class DimaStyle {
         List<String> titlesArrayT2 = new ArrayList<String>();
         List<Integer> countArrayT2 = new ArrayList<Integer>();
 
-        WebElement title = driver.findElement(TITLE_IS_FOUND); //find title element using text
-        titlesArrayT2.add((title).getText());
+        List<String> titlesPageArrayT2 = new ArrayList<String>();
+        List<Integer> totalCountArrayT2 = new ArrayList<Integer>();
 
-        List<WebElement> articleListMobile = driver.findElements(FOUND_PARENT);
-        for(WebElement el : articleListMobile){
-            el.getText();
-            System.out.println(el.getText() + "FOR");
+        List<Integer> regCommentsInt = new ArrayList<Integer>();
+        List<Integer> noRegCommentsInt = new ArrayList<Integer>();
+
+        WebElement title = driver.findElement(TITLE_IS_FOUND); //find title element using text
+        String gotTitle = title.getText();
+        titlesArrayT2.add(gotTitle); //add to title array
+
+        List<WebElement> comment = driver.findElement(TITLE_IS_FOUND).findElements(COMMENT_IS_FOUND); //find comment
+        if (driver.findElement(TITLE_IS_FOUND).findElements(COMMENT_IS_FOUND).size() > 0) {
+            String stringWithCount = comment.get(0).getText();
+            Integer numericValue = Integer.parseInt(stringWithCount.replaceAll("\\D", "")); //remove text leave only numeric values
+            countArrayT2.add(numericValue); //add to comment array
+        } else {
+            countArrayT2.add(valueOf(0));
         }
 
+        driver.findElement(TITLE_IS_FOUND).click(); //go to post
+        //checking and looking title on the page if locator exists
+        if (driver.findElements(ARTICLE_TITLE_MOBILE_PAGE).size() != 0) {
+            String findTitle = driver.findElement(ARTICLE_TITLE_PAGE).getText();
+            titlesPageArrayT2.add(findTitle);
+        } else {
+            String findTitle = driver.findElement(ARTICLE_TITLE_MOBILE_PAGE_OTHER).getText();
+            titlesPageArrayT2.add(findTitle);
+        }
+        String getCorrectTitle = titlesPageArrayT2.get(0);
+        Assert.assertTrue(getCorrectTitle.contains(gotTitle), "\n" + "Looking : " + gotTitle + "\n" + "Results : " + getCorrectTitle + "\n");
 
+        //looking comment count on the page if locator exists
+        if (driver.findElements(ARTICLE_COMMENT_COUNT_PAGE).size() != 0) {
+            String commentsExists = driver.findElement(ARTICLE_COMMENT_COUNT_PAGE).getText();
+        System.out.println(commentsExists + "if");
+            Integer numericValue = Integer.parseInt(commentsExists.replaceAll("\\D", "")); //remove text leave only numeric values
+            totalCountArrayT2.add(numericValue);
+                driver.findElement(ARTICLE_COMMENT_COUNT_PAGE).click();
+                //check if authorised comments are on the page
+                if (driver.findElements(REG_USR_COMMENTS).size() != 0) {
+                    String countToParseMobile = driver.findElement(REG_USR_COMMENTS).getText(); //(106)
+                    countToParseMobile = countToParseMobile.substring(countToParseMobile.indexOf('(') + 1, countToParseMobile.indexOf(')')); //106
+                    regCommentsInt.add(valueOf(countToParseMobile));
+                } else {
+                    regCommentsInt.add(valueOf(0));
+                }
 
-//        WebElement elementMobile = articleListMobile.getText();
-//        String titleMobile = elementMobile.findElements(FOUND_PARENT).get().getText();
-//        titlesArrayMobile.add(titleMobile);
+                //check if not authorised comments are on the page
+                if (driver.findElements(NO_REG_USR_COMMENTS).size() != 0) {
+                    String countToParseMobile = driver.findElement(NO_REG_USR_COMMENTS).getText(); //(106)
+                    countToParseMobile = countToParseMobile.substring(countToParseMobile.indexOf('(') + 1, countToParseMobile.indexOf(')')); //106
+                    noRegCommentsInt.add(valueOf(countToParseMobile));
+                } else {
+                    noRegCommentsInt.add(valueOf(0));
+                }
+        } else if (driver.findElements(ARTICLE_COMMENT_COUNT_MOBILE_PAGE_OTHER).size() != 0) {
+            String commentsExists = driver.findElement(ARTICLE_COMMENT_COUNT_MOBILE_PAGE_OTHER).getText();
+                if (commentsExists.matches(".*\\d+.*")) {
+                    Integer numericValue = Integer.parseInt(commentsExists.replaceAll("\\D", "")); //remove text leave only numeric values
+                    totalCountArrayT2.add(numericValue);
+                    driver.findElement(ARTICLE_COMMENT_COUNT_MOBILE_PAGE_OTHER).click();
+                } else {
+                    System.out.println("COMMENTS ARE EMPTY - ADDING ZERO");
+                    totalCountArrayT2.add(valueOf(0));
+                    noRegCommentsInt.add(valueOf(0));
+                    regCommentsInt.add(valueOf(0));
+                    System.out.println("COMPARING IS DONE - TEST HAS PASSED");
+                }
+        } else {
+            totalCountArrayT2.add(valueOf(0));
+            noRegCommentsInt.add(valueOf(0));
+            regCommentsInt.add(valueOf(0));
+        }
+        Integer noRegArray = regCommentsInt.get(0);
+        Integer regArray = noRegCommentsInt.get(0);
 
-//        WebElement article = title.findElement(FOUND_PARENT); //find parent element of tha containts previous element
-//        //WebElement article = title.findElement(By.xpath("..")); //find parent element of tha containts previous element
-//        List<WebElement> articleElementsList = article.findElements(ARTICLE_COMMENT_COUNT);
-//        System.out.println(title);
-//        //System.out.println(article);
-//        System.out.println((TITLE_IS_FOUND));
-//        System.out.println((FOUND_PARENT));
-//        System.out.println((ARTICLE_COMMENT_COUNT));
+        Integer summOfComments = (noRegArray + regArray);
 
+        System.out.println("SUM OF COMMENTS: " + noRegArray + " + " + regArray + " = " + summOfComments);
+        System.out.println("COMPARE RESULTS: " + countArrayT2 + " = " + totalCountArrayT2 + " = " + summOfComments);
 
-//        String gotCommentCount = articleElementsList.get(1).getText(); //(106)
-//        if (article.findElements(ARTICLE_COMMENT_COUNT).size() != 0) {
-//            gotCommentCount = gotCommentCount.substring(gotCommentCount.indexOf('(') + 1, gotCommentCount.indexOf(')')); //106
-//            countArrayT2.add(valueOf(gotCommentCount));
-//        } else {
-//            countArrayT2.add(0);
-//        }
-        System.out.println(titlesArrayT2);
-        System.out.println(countArrayT2);
-
-        driver.findElement(TITLE_IS_FOUND).click();
-
+        Assert.assertEquals(countArrayT2, totalCountArrayT2, String.valueOf(summOfComments));
         driver.quit(); //close browser
     }
 
@@ -146,7 +190,7 @@ public class DimaStyle {
                 countToParse = countToParse.substring(countToParse.indexOf('(') + 1, countToParse.indexOf(')')); //106
                 countArray.add(valueOf(countToParse));
             } else {
-                countArray.add(0);
+                countArray.add(valueOf(0));
             }
         }
 
@@ -166,7 +210,7 @@ public class DimaStyle {
                 countToParseMobile = countToParseMobile.substring(countToParseMobile.indexOf('(') + 1, countToParseMobile.indexOf(')')); //106
                 countArrayMobile.add(valueOf(countToParseMobile));
             } else {
-                countArrayMobile.add(0);
+                countArrayMobile.add(valueOf(0));
             }
         }
         //System.out.println(titlesArray);
@@ -215,7 +259,7 @@ public class DimaStyle {
                             totalCommentPageInt.add(numericValue);
                             driver.findElement(ARTICLE_COMMENT_COUNT_MOBILE_PAGE_OTHER).click();
                     } else {
-                        totalCommentPageInt.add(0);
+                        totalCommentPageInt.add(valueOf(0));
                     }
 
                     //check if authorised comments are on the page
@@ -224,7 +268,7 @@ public class DimaStyle {
                         countToParseMobile = countToParseMobile.substring(countToParseMobile.indexOf('(') + 1, countToParseMobile.indexOf(')')); //106
                         regCommentsInt.add(valueOf(countToParseMobile));
                     } else {
-                        regCommentsInt.add(0);
+                        regCommentsInt.add(valueOf(0));
                     }
 
                     //check if not authorised comments are on the page
@@ -233,7 +277,7 @@ public class DimaStyle {
                         countToParseMobile = countToParseMobile.substring(countToParseMobile.indexOf('(') + 1, countToParseMobile.indexOf(')')); //106
                         noRegCommentsInt.add(valueOf(countToParseMobile));
                     } else {
-                        noRegCommentsInt.add(0);
+                        noRegCommentsInt.add(valueOf(0));
                     }
 
                     Integer totalCommmens = totalCommentPageInt.get(i);
@@ -247,7 +291,6 @@ public class DimaStyle {
                     System.out.println(summOfComments);
 
                     Assert.assertEquals(getArrayCount, totalCommmens, summOfComments); // compare tree arrays of comment count
-
         } //for close
 
         //WEB
@@ -274,7 +317,7 @@ public class DimaStyle {
 //                        countToParseMobile = countToParseMobile.substring(countToParseMobile.indexOf('(') + 1, countToParseMobile.indexOf(')')); //106
 //                        regCommentsInt.add(valueOf(countToParseMobile));
 //                    } else {
-//                        regCommentsInt.add(0);
+//                        regCommentsInt.add(valueOf(0));
 //                    }
 //
 //                    //check if not authorised comments are on the page
@@ -283,7 +326,7 @@ public class DimaStyle {
 //                        countToParseMobile = countToParseMobile.substring(countToParseMobile.indexOf('(') + 1, countToParseMobile.indexOf(')')); //106
 //                        noRegCommentsInt.add(valueOf(countToParseMobile));
 //                    } else {
-//                        noRegCommentsInt.add(0);
+//                        noRegCommentsInt.add(valueOf(0));
 //                    }
 //                    Integer noRegArray = regCommentsInt.get(i);
 //                    Integer regArray = noRegCommentsInt.get(i);
