@@ -1,5 +1,7 @@
 package Delfi;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.*; //selected all - Selenium
 import org.testng.*; //selected all - TestNG
 import org.openqa.selenium.firefox.*; //selected all - required for firefox driver
@@ -12,6 +14,8 @@ import java.util.List;
 public class DimaStyle {
     private String WEB_URL = "http://www.delfi.lv/"; //define desktop website url
     private String MOB_URL = "http://m.delfi.lv"; //define mobile website url
+
+    private static final Logger LOGGER = LogManager.getLogger(DimaStyle.class);
 
     //WEB LOCATORS
     private static final By LOGO = By.xpath("//a[@class='headerLogo']");
@@ -37,7 +41,7 @@ public class DimaStyle {
     private static final By NO_REG_USR_COMMENTS = By.xpath("//*[contains(@class,'list-a-anon')]/span");
 
     //TEST 2
-    private String findThisTitle =  "Foto: Katalonijā sadursmēs ar policiju norit neatkarības referendums";
+    private String findThisTitle =  "Vāc parakstus par Uzvaras pieminekļa demontāžu";
     private final By TITLE_IS_FOUND = By.xpath("//h3/a[contains(text(), '"+ findThisTitle +"')]");
     private final By COMMENT_IS_FOUND = By.xpath("./following-sibling::a");
 
@@ -49,6 +53,7 @@ public class DimaStyle {
         WebDriver driver = new FirefoxDriver(); //define driver variable
         driver.manage().window().maximize(); //maximize browser window
 
+        LOGGER.info("open web url");
         driver.get(WEB_URL); //go to url
 
         List<String> titlesArrayT2 = new ArrayList<String>();
@@ -141,7 +146,7 @@ public class DimaStyle {
 
     @Test
     public void testMethod() {
-        System.setProperty("webdriver.gecko.driver", "G:\\_driver/geckodriver.exe");
+        System.setProperty("webdriver.gecko.driver", "C:\\_driver/geckodriver.exe");
 
         WebDriver driver = new FirefoxDriver(); //define driver variable
         driver.manage().window().maximize(); //maximize browser window
