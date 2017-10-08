@@ -36,6 +36,7 @@ public class PageObjectClass {
 
         LOG.info("Getting article title");
         ArticlePage articlePage = homePage.openArticle();
+        
         LOG.info("Getting article comment count");
         LOG.info("Compare title");
         LOG.info("Compare comment count");
