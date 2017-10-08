@@ -1,5 +1,6 @@
 package PageObject;
 
+import PageObject.Pages.ArticlePage;
 import PageObject.Pages.BaseFunctions;
 import PageObject.Pages.HomePage;
 import org.apache.logging.log4j.LogManager;
@@ -25,13 +26,16 @@ public class PageObjectClass {
         LOG.info("Getting first title");
         HomePage homePage = new HomePage(baseFunc);
         WebElement article = homePage.getArticle();
-        WebElement title = homePage.getTitle(article);
-
+        String title = homePage.getTitle(article);
 
         LOG.info("Getting comment count");
+        int comment = homePage.getComment(article);
 
         LOG.info("Open first article");
+        homePage.openArticle();
+
         LOG.info("Getting article title");
+        ArticlePage articlePage = homePage.openArticle();
         LOG.info("Getting article comment count");
         LOG.info("Compare title");
         LOG.info("Compare comment count");

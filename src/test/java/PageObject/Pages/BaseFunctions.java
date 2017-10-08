@@ -34,7 +34,12 @@ public class BaseFunctions {
     }
 
     public WebElement getElement(By locator) {
-        LOG.info("Getting element ");
+        LOG.info("Getting element");
         return driver.findElement(locator);
+    }
+
+    public void clickThis(By locator) {
+        LOG.info("Click element");
+        driver.findElement(locator).click();
     }
 }
