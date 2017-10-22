@@ -6,15 +6,17 @@ import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-public class ArticlePage {
+public class CommentPage {
     BaseFunctions baseFunk;
     CommentHelper comHelp = new CommentHelper(); // conenction with CommentHelper.java
-    private static final Logger LOG = LogManager.getLogger(ArticlePage.class); //define loger
+    private static final Logger LOG = LogManager.getLogger(CommentPage.class); //define loger
     private static final By TITLE = By.xpath("//h1[@class='article-title']/span"); // locator of title from article on homepage (String)
-    private static final By COMMENT = By.xpath("//a[@class='comment-count']"); // locator of comment from article on homepage (Int)
+
+    private static final By REG_USR_COMMENTS = By.xpath("//*[contains(@class,'list-a-reg')]/span");
+    private static final By NO_REG_USR_COMMENTS = By.xpath("//*[contains(@class,'list-a-anon')]/span");
 
 
-    public ArticlePage(BaseFunctions baseFunk) {
+    public CommentPage(BaseFunctions baseFunk) {
         this.baseFunk = baseFunk;
     }
 
@@ -25,15 +27,15 @@ public class ArticlePage {
         return title;
     }
 
-    public Integer getComment() {
+    public Integer getRegComment() {
         LOG.info("Get Article Page Comment Count");
-        WebElement element = baseFunk.getElement(COMMENT);
+        WebElement element = baseFunk.getElement(REG_USR_COMMENTS);
         return comHelp.stringToInt(element.getText());
     }
 
-    public CommentPage openComment() {
-        LOG.info("Click on Comment count");
-        baseFunk.clickThis(COMMENT);
-        return new CommentPage(baseFunk);
+    public Integer getNonComment() {
+        LOG.info("Get Article Page Comment Count");
+        WebElement element = baseFunk.getElement(NO_REG_USR_COMMENTS);
+        return comHelp.stringToInt(element.getText());
     }
 }

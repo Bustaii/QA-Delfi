@@ -13,7 +13,7 @@ import java.util.List;
 
 public class BaseFunctions {
     WebDriver driver;
-    private static final String FIREFOX_DRIVER_PATH = "G:\\_driver/geckodriver.exe"; //define driver path to
+    private static final String FIREFOX_DRIVER_PATH = "C:/_driver/geckodriver.exe"; //define driver path to
     private static final Logger LOG = LogManager.getLogger(BaseFunctions.class); //define loger
 
     //CONSTRUCTOR
