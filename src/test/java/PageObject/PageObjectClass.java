@@ -32,7 +32,7 @@ public class PageObjectClass {
 
 
         LOG.info("Open first article page");
-//        homePage.openArticle(); //click on article
+        //homePage.openArticle(); //click on article
         ArticlePage articlePage = homePage.openArticle();
 
         LOG.info("Getting article title");
@@ -52,7 +52,7 @@ public class PageObjectClass {
 
 
         LOG.info("Open comment page");
-        articlePage.openComment();
+        //articlePage.openComment();
         CommentPage commentPage = articlePage.openComment();
 
         LOG.info("Getting registered comment count");

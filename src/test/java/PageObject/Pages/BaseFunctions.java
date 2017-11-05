@@ -32,10 +32,15 @@ public class BaseFunctions {
         LOG.info("Open URL: " + url);
         driver.get(url);
     }
-
+    //One Element
     public WebElement getElement(By locator) {
         LOG.info("Getting element");
         return driver.findElement(locator);
+    }
+    //Multiple Elements
+    public List<WebElement> getElements(By locator) {
+        LOG.info("Getting element");
+        return driver.findElements(locator);
     }
 
     public void clickThis(By locator) {
